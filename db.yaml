@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dbsecret
+                  key: db_root_pass
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: dbsecret
+                  key: db_name
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dbsecret
+                  key: db_user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dbsecret
+                  key: db_pass
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: db-volume
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: db-volume
+          persistentVolumeClaim:
+            claimName: db-volume

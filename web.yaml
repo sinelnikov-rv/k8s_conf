@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webserver
+spec:
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      # unlike pod-nginx.yaml, the name is not included in the meta data as a unique name is
+      # generated from the deployment name
+      labels:
+        app: apache
+        type: webserver
+    spec:
+      containers:
+      - name: apache
+        image: gcr.io/my-project-1525005619884/wordpress:latest
+        ports:
+        - containerPort: 80
+          name: http-server
+        volumeMounts:
+          - name: web-volume-pvc
+            mountPath: /var/www/html
+      volumes:
+        - name: web-volume-pvc
+          persistentVolumeClaim:
+            claimName: web-volume
